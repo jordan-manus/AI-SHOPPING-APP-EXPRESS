@@ -1,7 +1,6 @@
 const express = require("express");
 const connectDB = require('./db/connect');
 const mongoose = require('mongoose')
-const sentiment_analysis = require('./sentiment-analysis.js')
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const jwtAuth = require("./middleware/jwtAuth");
@@ -11,19 +10,17 @@ const morgan = require('morgan');
 const cors = require('cors');
 require('dotenv').config();
 const config = require("./config/auth.config.js");
-// const playwright = require('playwright');
-const playwright = require('playwright-aws-lambda')
 const fs = require('fs');
 const https = require('https');
 const verifyUserInfoUpdate = require('./middleware/verifyUserinfoUpdate.js')
 
 // getting the Models to query the DB
-const User = require('./models/User')
-const Searches = require('./models/Searches')
-const Homes = require('./models/Home');
+const User = require('./models/users')
+const items = require('./models/items')
+const orders = require('./models/orders');
 const verifyLogin = require("./middleware/verifyLogin");
-const Blacklist = require("./models/Blacklist.js");
-const UserPreference = require("./models/UserPreference.js");
+const Blacklist = require("./models/blacklist.js");
+
 
 
 const app = express();
@@ -43,11 +40,6 @@ app.post("/register",
 
         res.json({ user })
         const userId = user._id;
-        // Automatically create a "My List" for all new users
-        const search = await Searches.create({
-            "search_name": "My List",
-            "userID": userId
-        })
     })
 
 // users - collection

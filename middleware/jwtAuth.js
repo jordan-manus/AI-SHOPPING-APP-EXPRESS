@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const config = require("../config/auth.config.js");
-const User = require('../models/User.js');
-const Blacklist = require("../models/Blacklist.js");
+const User = require('../models/users.js');
+const Blacklist = require("../models/blacklist.js");
 
 verifyToken = async (req, res, next) => {
     let tokenHeader = req.headers["authorization"];

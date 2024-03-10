@@ -1,4 +1,4 @@
-const User = require('../models/User.js');
+const User = require('../models/users.js');
 
 // Check for duplicate user name and email
 checkDuplicateUserInfo = async (req, res, next) => {

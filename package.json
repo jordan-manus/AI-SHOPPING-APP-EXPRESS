@@ -1,0 +1,49 @@
+{
+    "name": "backend",
+    "version": "1.0.0",
+    "engines": {
+        "node": "21.5.0"
+    },
+    "description": "backend for ai shopping app",
+    "main": "index.js",
+    "scripts": {
+        "test": "\"echo \\\"Error: no test specified\\\" && exit 1\"",
+        "lint": "eslint src/js",
+        "start": "node index.js",
+        "heroku-cleanup": "npx playwright install chromium"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/jordan-manus/AI-SHOPPING-APP-EXPRESS.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/jordan-manus/AI-SHOPPING-APP-EXPRESS.git/issues"
+    },
+    "homepage": "https://github.com/jordan-manus/AI-SHOPPING-APP-EXPRESS.git#readme",
+    "dependencies": {
+        "axios": "^1.6.5",
+        "bcrypt": "^5.1.1",
+        "cheerio": "^1.0.0-rc.12",
+        "chrome-aws-lambda": "^9.1.0",
+        "chromium": "^3.0.3",
+        "cors": "^2.8.5",
+        "dotenv": "^16.3.1",
+        "express": "^4.18.3",
+        "jsonwebtoken": "^9.0.2",
+        "mongodb": "^6.3.0",
+        "mongoose": "^8.0.4",
+        "morgan": "^1.10.0",
+        "nodemon": "^3.0.2",
+        "openai": "^4.24.7",
+        "playwright": "^1.41.1",
+        "playwright-aws-lambda": "^0.10.0",
+        "playwright-core": "^1.41.1",
+        "puppeteer": "^21.9.0"
+    },
+    "devDependencies": {
+        "eslint": "^8.56.0",
+        "nodemon": "^3.0.2"
+    }
+}
