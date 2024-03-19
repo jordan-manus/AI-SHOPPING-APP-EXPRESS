@@ -20,6 +20,8 @@ const items = require('./models/items')
 const orders = require('./models/orders');
 const verifyLogin = require("./middleware/verifyLogin");
 const Blacklist = require("./models/blacklist.js");
+const items = require("./models/items");
+const { error } = require("console");
 
 
 
@@ -102,6 +104,102 @@ app.get("/logout", async (req, res) => {
     await newBlacklist.save();
     res.status(200).send({ message: 'Successfully logged out' });
 });
+
+
+// questionnaire endpoints
+app.post('/questionnaire', [jwtAuth.verifyToken], async (req, res) => {
+    const UserID = req.UserID
+    Object.assign(req.body, { UserID })
+    const questionnaire = await questionnaire.create(req.body)
+    res.json({ questionnaire })
+})
+
+app.get('/questionnaire', [jwtAuth.verifyToken], async (req, res) => {
+    const UserID = req.UserID;
+    Object.assign(req.body, { UserID });
+    try {
+        const questionnaire = await questionnaire.findOne({ UserID: UserID });
+        res.json(questionnaire)
+    } catch {
+        res.status(500).json(Error)
+    }
+})
+
+app.put('/questionnaire', [jwtAuth.verifyToken], async (req, res) => {
+    const UserID = req.UserID;
+    const questionnaireArray = await questionnaire.find({ UserID: UserID });
+    //Removes userPref from the array it was returned in
+    const questionnaire = questionnaireArray[0]
+    if (req.body.itemID != null) {
+        questionnaire.address = req.body.itemID;
+    }
+
+    questionnaire.save()
+    res.json({ questionnaire })
+})
+
+
+// items - collection
+app.get('/items', [jwtAuth.verifyToken], async (req, res) => {
+
+    //gets info for all homes for logged in user
+    const items = await items.find().exec();
+    res.json({ items })
+})
+
+app.post('/items', [jwtAuth.verifyToken], async (req, res) => {
+    // Find the logged in user's My List
+    const UserID = req.UserID;
+    const myList = await Searches.find({ userID: UserID }).exec();
+    const myItems = await items.find({ userID: UserID, item_name: req.body.item_name }).exec();
+
+
+    if (myItems._id != null) {
+        res.status(400).send({ message: "Alert! Duplicate item cannot be added to listings." })
+    } else {
+        // pushes new home listing into db
+        const item = await items.create(req.body);
+        res.json({ item });
+
+    }
+})
+
+
+// item details 
+app.get('/item/:id', [jwtAuth.verifyToken], async (req, res) => {
+
+    try {
+        const items = await items.findById(req.params.id).exec();
+        res.json(items)
+    } catch {
+        console.log(error)
+    }
+
+})
+
+app.put('/item/:id', [jwtAuth.verifyToken], async (req, res) => {
+
+    const itemID = req.params.id
+
+    try {
+        const item = await items.findByIdAndUpdate(itemID, req.body)
+
+        res.json({ item })
+    } catch (error) {
+        console.log(error)
+    }
+
+    // }
+})
+
+
+
+
+
+
+
+
+
 
 // connects DB and starts app
 const start = async () => {
