@@ -15,9 +15,9 @@ const https = require('https');
 const verifyUserInfoUpdate = require('./middleware/verifyUserinfoUpdate.js')
 
 // getting the Models to query the DB
-const User = require('./models/users')
-const items = require('./models/items')
-const orders = require('./models/orders');
+const User = require('./models/Users.js')
+const items = require('./models/Items.js')
+const orders = require('./models/Orders.js');
 const verifyLogin = require("./middleware/verifyLogin");
 const Blacklist = require("./models/Blacklist.js");
 const { error } = require("console");
@@ -142,17 +142,21 @@ app.put('/questionnaire', [jwtAuth.verifyToken], async (req, res) => {
 app.get('/items', [jwtAuth.verifyToken], async (req, res) => {
 
     //gets info for all homes for logged in user
-    const items = await items.find().exec();
-    res.json({ items })
+    try {
+        const items = await items.find().exec();
+        res.json({ items })
+    } catch (error) {
+        console.log(error)
+    }
 })
 
 app.post('/items', [jwtAuth.verifyToken], async (req, res) => {
     // Find the logged in user's My List
     const UserID = req.UserID;
-    const myList = await Searches.find({ userID: UserID }).exec();
     const myItems = await items.find({ userID: UserID, item_name: req.body.item_name }).exec();
 
 
+    // does not prevent duplicate adds
     if (myItems._id != null) {
         res.status(400).send({ message: "Alert! Duplicate item cannot be added to listings." })
     } else {
@@ -165,18 +169,18 @@ app.post('/items', [jwtAuth.verifyToken], async (req, res) => {
 
 
 // item details 
-app.get('/item/:id', [jwtAuth.verifyToken], async (req, res) => {
+app.get('/items/:id', [jwtAuth.verifyToken], async (req, res) => {
 
     try {
         const items = await items.findById(req.params.id).exec();
         res.json(items)
-    } catch {
+    } catch (error) {
         console.log(error)
     }
 
 })
 
-app.put('/item/:id', [jwtAuth.verifyToken], async (req, res) => {
+app.put('/items/:id', [jwtAuth.verifyToken], async (req, res) => {
 
     const itemID = req.params.id
 
