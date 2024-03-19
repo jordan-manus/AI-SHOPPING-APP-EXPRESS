@@ -15,11 +15,11 @@ const https = require('https');
 const verifyUserInfoUpdate = require('./middleware/verifyUserinfoUpdate.js')
 
 // getting the Models to query the DB
-const User = require('./models/Users.js')
-const items = require('./models/Items.js')
-const orders = require('./models/Orders.js');
+const User = require('./models/users.js')
+const items = require('./models/items.js')
+const orders = require('./models/orders.js');
 const verifyLogin = require("./middleware/verifyLogin");
-const Blacklist = require("./models/Blacklist.js");
+const Blacklist = require("./models/blacklist.js");
 const { error } = require("console");
 
 
