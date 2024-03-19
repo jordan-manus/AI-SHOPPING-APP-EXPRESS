@@ -143,8 +143,8 @@ app.get('/items', [jwtAuth.verifyToken], async (req, res) => {
 
     //gets info for all homes for logged in user
     try {
-        const items = await items.find().exec();
-        res.json({ items })
+        const myItems = await items.find().exec();
+        res.json({ myItems })
     } catch (error) {
         console.log(error)
     }
@@ -170,10 +170,11 @@ app.post('/items', [jwtAuth.verifyToken], async (req, res) => {
 
 // item details 
 app.get('/items/:id', [jwtAuth.verifyToken], async (req, res) => {
+    const itemID = req.params.id
 
     try {
-        const items = await items.findById(req.params.id).exec();
-        res.json(items)
+        const myItems = await items.findById(itemID).exec();
+        res.json(myItems)
     } catch (error) {
         console.log(error)
     }
@@ -185,9 +186,9 @@ app.put('/items/:id', [jwtAuth.verifyToken], async (req, res) => {
     const itemID = req.params.id
 
     try {
-        const item = await items.findByIdAndUpdate(itemID, req.body)
+        const myItem = await items.findByIdAndUpdate(itemID, req.body)
 
-        res.json({ item })
+        res.json({ myItem })
     } catch (error) {
         console.log(error)
     }
