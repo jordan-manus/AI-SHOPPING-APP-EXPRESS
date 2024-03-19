@@ -20,7 +20,6 @@ const items = require('./models/items')
 const orders = require('./models/orders');
 const verifyLogin = require("./middleware/verifyLogin");
 const Blacklist = require("./models/blacklist.js");
-const items = require("./models/items");
 const { error } = require("console");
 
 
