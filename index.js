@@ -197,8 +197,11 @@ app.put('/items/:id', [jwtAuth.verifyToken], async (req, res) => {
 })
 
 
+// image creation endpoint
+app.
 
 
+// image detection endpoint
 
 
 
