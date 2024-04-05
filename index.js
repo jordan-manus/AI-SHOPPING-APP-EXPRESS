@@ -13,6 +13,8 @@ const config = require("./config/auth.config.js");
 const fs = require('fs');
 const https = require('https');
 const verifyUserInfoUpdate = require('./middleware/verifyUserinfoUpdate.js')
+const image_creation = require('./image-creation.js')
+const object_detection = require('./object-detection.js')
 
 // getting the Models to query the DB
 const User = require('./models/users.js')
@@ -198,11 +200,32 @@ app.put('/items/:id', [jwtAuth.verifyToken], async (req, res) => {
 
 
 // image creation endpoint
-app.
+app.put('/tryon', [jwtAuth.verifyToken], async (req, res) => {
+    let selfie = req.params.selfie
+    let referencePic = req.params.referencePic
+
+    image_creation(selfie, referencePic)
+        .then(async (results) => {
+            final_image = results
+            Object.assign(req.body, { final_image: final_image })
+
+            res.json({ final_image })
+        })
+})
 
 
 // image detection endpoint
+app.put('/findItem', [jwtAuth.verifyToken], async (req, res) => {
+    let image = req.params.image
 
+    object_detection(image)
+        .then(async (results) => {
+            item_info = results
+            // add in image scraping from Amazon for similar items for sale
+
+            Object.assign(req.body, {})
+        })
+})
 
 
 
