@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const QuestionnaireSchema = new mongoose.Schema({
     // add for items that user wants to see
-    itemID: Array,
+    categoriesSelected: Array,
     UserID: String, //FK
 })
 
