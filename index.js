@@ -144,15 +144,12 @@ app.put('/questionnaire', [jwtAuth.verifyToken], async (req, res) => {
 app.get('/items', [jwtAuth.verifyToken], async (req, res) => {
 
     //gets info for all homes for logged in user
-    // try {
-    //     const myItems = await items.find().exec();
-    //     res.json({ myItems })
-    // } catch (error) {
-    //     console.log(error)
-    // }
-    const item_cat = req.body.accessToken
-    const url = "https:amazon.com/0" + item_cat
-    web_scrapping(url)
+    try {
+        const myItems = await items.find().exec();
+        res.json({ myItems })
+    } catch (error) {
+        console.log(error)
+    }
 })
 
 app.post('/items', [jwtAuth.verifyToken], async (req, res) => {
