@@ -13,8 +13,7 @@ const config = require("./config/auth.config.js");
 const fs = require('fs');
 const https = require('https');
 const verifyUserInfoUpdate = require('./middleware/verifyUserinfoUpdate.js')
-const image_creation = require('./image-creation.js')
-const object_detection = require('./object-detection.js')
+const web_scrapping = require('./web_scrapping.jsx')
 
 // getting the Models to query the DB
 const User = require('./models/users.js')
@@ -23,6 +22,7 @@ const orders = require('./models/orders.js');
 const verifyLogin = require("./middleware/verifyLogin");
 const Blacklist = require("./models/blacklist.js");
 const { error } = require("console");
+const questionnaire = require('./models/questionnaire.js')
 
 
 
@@ -111,16 +111,16 @@ app.get("/logout", async (req, res) => {
 app.post('/questionnaire', [jwtAuth.verifyToken], async (req, res) => {
     const UserID = req.UserID
     Object.assign(req.body, { UserID })
-    const questionnaire = await questionnaire.create(req.body)
-    res.json({ questionnaire })
+    const userPref = await questionnaire.create(req.body)
+    res.json({ userPref })
 })
 
 app.get('/questionnaire', [jwtAuth.verifyToken], async (req, res) => {
     const UserID = req.UserID;
     Object.assign(req.body, { UserID });
     try {
-        const questionnaire = await questionnaire.findOne({ UserID: UserID });
-        res.json(questionnaire)
+        const userPref = await questionnaire.findOne({ UserID: UserID });
+        res.json(userPref)
     } catch {
         res.status(500).json(Error)
     }
@@ -130,9 +130,9 @@ app.put('/questionnaire', [jwtAuth.verifyToken], async (req, res) => {
     const UserID = req.UserID;
     const questionnaireArray = await questionnaire.find({ UserID: UserID });
     //Removes userPref from the array it was returned in
-    const questionnaire = questionnaireArray[0]
+    const userPref = questionnaireArray[0]
     if (req.body.itemID != null) {
-        questionnaire.address = req.body.itemID;
+        questionnaire.itemID = req.body.itemID;
     }
 
     questionnaire.save()
@@ -144,12 +144,15 @@ app.put('/questionnaire', [jwtAuth.verifyToken], async (req, res) => {
 app.get('/items', [jwtAuth.verifyToken], async (req, res) => {
 
     //gets info for all homes for logged in user
-    try {
-        const myItems = await items.find().exec();
-        res.json({ myItems })
-    } catch (error) {
-        console.log(error)
-    }
+    // try {
+    //     const myItems = await items.find().exec();
+    //     res.json({ myItems })
+    // } catch (error) {
+    //     console.log(error)
+    // }
+    const item_cat = req.body.accessToken
+    const url = "https:amazon.com/0" + item_cat
+    web_scrapping(url)
 })
 
 app.post('/items', [jwtAuth.verifyToken], async (req, res) => {
@@ -202,29 +205,88 @@ app.put('/items/:id', [jwtAuth.verifyToken], async (req, res) => {
 // image creation endpoint
 app.put('/tryon', [jwtAuth.verifyToken], async (req, res) => {
     let selfie = req.params.selfie
-    let referencePic = req.params.referencePic
+    let referencePic = req.params.item_name
 
-    image_creation(selfie, referencePic)
-        .then(async (results) => {
-            final_image = results
-            Object.assign(req.body, { final_image: final_image })
 
-            res.json({ final_image })
-        })
+    const response = await openai.images.edit({
+        model: "dall-e-2",
+        image: fs.createReadStream({ selfie }),
+        mask: fs.createReadStream("mask.png"),
+        prompt: `A person using ${referencePic}`,
+        n: 1,
+        size: "1024x1024"
+    });
+    image_url = response.data[0].url;
+
 })
 
 
-// image detection endpoint
+// object detection endpoint
 app.put('/findItem', [jwtAuth.verifyToken], async (req, res) => {
-    let image = req.params.image
+    // let image = req.params.image
 
-    object_detection(image)
-        .then(async (results) => {
-            item_info = results
-            // add in image scraping from Amazon for similar items for sale
+    // OpenAI API Key
+    const apiKey = process.env.OPENAI_API_KEY;
 
-            Object.assign(req.body, {})
-        })
+    // Function to encode the image
+    function encodeImage(imagePath) {
+        const imageBuffer = fs.readFileSync(imagePath);
+        return imageBuffer.toString('base64');
+    }
+
+    // Path to your image
+    const imagePath = req.params.image;
+
+    // Getting the base64 string
+    const base64Image = encodeImage(imagePath);
+
+    const headers = {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+    };
+
+    const payload = {
+        "model": "gpt-4-turbo",
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "What’s in this image?"
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": `data:image/jpeg;base64,${base64Image}`
+                        }
+                    }
+                ]
+            }
+        ],
+        "max_tokens": 300
+    };
+
+    request.post({
+        url: "https://api.openai.com/v1/chat/completions",
+        headers: headers,
+        json: payload
+    }, (error, response, body) => {
+        if (error) {
+            console.error('Error:', error);
+            return;
+        }
+        console.log(body);
+    });
+
+
+    // object_detection(imagePath)
+    //     .then(async (results) => {
+    //         item_info = results
+    //         // add in image scraping from Amazon for similar items for sale
+
+    //         Object.assign(req.body, {})
+    //     })
 })
 
 
